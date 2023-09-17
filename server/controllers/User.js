@@ -24,7 +24,6 @@ const registerUser = asyncHandler(async (req, res, next) => {
             _id: user._id,
             name: user.name,
             email: user.email,
-            password: user.password,
             pic: user.pic,
             token: generateToken(user._id)
         })
@@ -67,7 +66,7 @@ const loginUser = asyncHandler(async (req, res, next) => {
 })
 
 const autoLogin = asyncHandler(async (req, res, next) => {
-    const id = req.userId;
+    const id = req.user._id;
     const user = await User.findById(id);
     if (user) {
         res.status(200).json({

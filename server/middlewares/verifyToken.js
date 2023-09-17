@@ -2,7 +2,6 @@ import jwt, { decode } from "jsonwebtoken";
 import User from "../models/userModel.js";
 
 function validateToken(req, res, next) {
-    console.log('req.nody', req.rawHeaders[1]);
     // const header = req.body.headers['Authorization'];
     const header = req.rawHeaders[1];
     const token = header.split(" ")[1];
