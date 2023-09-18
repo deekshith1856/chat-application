@@ -18,8 +18,8 @@ const connectToMongoDB = (req, res, next) => {
 };
 
 // app.use(morgan());
-app.use(express.json());
 app.use(cors());
+app.use(express.json());
 //mongodb connection
 app.use(connectToMongoDB);
 

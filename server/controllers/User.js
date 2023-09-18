@@ -81,6 +81,7 @@ const autoLogin = asyncHandler(async (req, res, next) => {
     }
 })
 const getAllUsers = asyncHandler(async (req, res, next) => {
+
     const data = await User.find();
     res.status(200).send(data);
 

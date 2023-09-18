@@ -4,24 +4,30 @@ import { Box, Button, HStack, Stack, Text, useToast } from "@chakra-ui/react";
 import { AddIcon } from "@chakra-ui/icons";
 import ChatLoading from "./ChatLoading";
 import { getSender } from "../../config/ChatLogics";
+import axios from "axios";
+import GroupChatModal from "./GroupChatModal";
 const MyChats = () => {
   const [loggedUser, setLoggedUser] = useState();
-  const { user, setUser, selectedChat, setSelectedChat, chats, setChats } =
-    ChatState();
+  const { user, selectedChat, setSelectedChat, chats, setChats } = ChatState();
   const toast = useToast();
+
   const fetchChats = async () => {
     try {
       const config = {
         headers: {
-          Atuhorization: `Bearer ${user.token}`,
+          authorization: `Bearer ${user.token}`,
         },
       };
-      const { data } = await axios.get("route", config);
-      setChats(data);
+      const { data } = await axios.get(
+        "http://localhost:5000/api/chats/",
+        config
+      );
+
+      setChats([...data]);
     } catch (error) {
       toast({
         title: "error occured",
-        description: { error },
+        description: "failed to load chats",
         status: "error",
         duration: 3000,
         isClosable: true,
@@ -30,9 +36,9 @@ const MyChats = () => {
     }
   };
   useEffect(() => {
-    // setLoggedUser(JSON.parse(localStorage.getItem("user")));
-    // fetchChats();
-  });
+    setLoggedUser(JSON.parse(localStorage.getItem("user")));
+    fetchChats();
+  }, []);
 
   return (
     <Box
@@ -59,11 +65,13 @@ const MyChats = () => {
           {" "}
           My Chats{" "}
         </Text>
-        <Button display={"flex"} rightIcon={<AddIcon />}>
-          <Text fontSize={{ base: "12px", md: "10px", lg: "17px" }}>
-            New Group chat
-          </Text>
-        </Button>
+        <GroupChatModal>
+          <Button display={"flex"} rightIcon={<AddIcon />}>
+            <Text fontSize={{ base: "12px", md: "10px", lg: "17px" }}>
+              New Group chat
+            </Text>
+          </Button>
+        </GroupChatModal>
       </HStack>
       <Box
         d="flex"
@@ -80,13 +88,13 @@ const MyChats = () => {
             {chats.map((chat) => (
               <Box
                 onClick={() => setSelectedChat(chat)}
-                cursor={"pointer"}
+                cursor="pointer"
                 bg={selectedChat === chat ? "#38b2Ac" : "#E8E8E8"}
                 color={selectedChat == chat ? "white" : "black"}
                 px={3}
                 py={2}
                 borderRadius={"lg"}
-                key={chat_id}
+                key={chat._id}
               >
                 <Text>
                   {!chat.isGroupChat

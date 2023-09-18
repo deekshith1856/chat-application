@@ -3,7 +3,7 @@ import User from "../models/userModel.js";
 
 function validateToken(req, res, next) {
     // const header = req.body.headers['Authorization'];
-    const header = req.rawHeaders[1];
+    const header = req.headers.authorization;
     const token = header.split(" ")[1];
     if (!token) {
         res.status(400).json({ message: "token not present" })

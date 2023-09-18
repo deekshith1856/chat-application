@@ -18,9 +18,7 @@ import {
   MenuItem,
   MenuList,
   Spinner,
-  Stack,
   Text,
-  Toast,
   Tooltip,
   VStack,
   useColorModeValue,
@@ -35,9 +33,8 @@ import ProfileModel from "./ProfileModel";
 import { useNavigate } from "react-router-dom";
 import ChatLoading from "./ChatLoading";
 import UserListItem from "../UserListItem";
+import axios from "axios";
 const SideDrawer = () => {
-  const data = [{ name: "hekko", email: "123@FiMail.com", pic: "" }];
-
   //change the data
   const [search, setSearch] = useState("");
   const [searchResult, setSearchResult] = useState([]);
@@ -47,7 +44,7 @@ const SideDrawer = () => {
   const btnRef = React.useRef();
   const { isOpen, onOpen, onClose } = useDisclosure();
   //getting user using context api
-  const { user, chats } = ChatState();
+  const { user, chats, setSelectedChat, setChats } = ChatState();
   const navigate = useNavigate();
   //logout handler
   const logoutHandler = () => {
@@ -69,21 +66,35 @@ const SideDrawer = () => {
     }
     try {
       setLoading(true);
-      //   const config = {
-      //     headers: {
-      //       Authorization: `Bearer ${user.token}`,
-      //     },
-      //   };
-      //   const { data } = await axios.get(apiroute, config);
-      if (!chats.find((c) => c._id === data._id)) {
-        setChats([data, ...chats]);
-      }
+      const config = {
+        headers: {
+          authorization: `Bearer ${user.token}`,
+        },
+      };
+      const { data } = await axios.get(
+        "http://localhost:5000/api/user/",
+        config
+      );
+      let result = [];
+      console.log("search", search);
+      data.map((obj) => {
+        const name = obj.name;
+        const email = obj.email;
+        if (name && name.includes(search)) {
+          result.push(obj);
+        } else if (email && email.includes(search)) {
+          result.push(obj);
+        }
+      });
+
       setLoading(false);
-      //   setSearchResult(data);
+
+      setSearchResult([...result]);
     } catch (error) {
       toast({
-        title: { error },
-        status: "danger",
+        title: "error",
+        status: "warning",
+        description: error,
         duration: 3000,
         isClosable: true,
         position: "top-left",
@@ -92,21 +103,29 @@ const SideDrawer = () => {
   };
   //access chat function
   const accessChat = async (userId) => {
+    console.log(userId);
     try {
       setLoadingChat(true);
-      //   const config = {
-      //     headers: {
-      // "Content-type":"application/json",
-      //       Authorization: `Bearer ${user.token}`,
-      //     },
-      //   };
-      //   const { data } = await axios.post(apiroute,userId, config);
-      if (!chats) setLoadingChat(false);
+      const config = {
+        headers: {
+          "Content-type": "application/json",
+          authorization: `Bearer ${user.token}`,
+        },
+      };
+      const { data } = await axios.post(
+        "http://localhost:5000/api/chats/",
+        { userId },
+        config
+      );
+      if (!chats.find((c) => c._id === data._id)) setChats([data, ...chats]);
+      setSelectedChat(data);
+      setLoadingChat(false);
+      onClose();
     } catch (error) {
       toast({
         title: "error occured",
-        description: { error },
-        status: "error",
+        description: error,
+        status: "warning",
         duration: 3000,
         isClosable: true,
         position: "top-left",
@@ -199,7 +218,7 @@ const SideDrawer = () => {
               {loading ? (
                 <ChatLoading />
               ) : (
-                data.map((user, index) => (
+                searchResult.map((user, index) => (
                   <UserListItem
                     key={index}
                     user={user}
