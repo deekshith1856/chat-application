@@ -26,7 +26,6 @@ export const Home = () => {
           Authorization: `Bearer ${userInfo.token}`,
         },
       };
-      console.log("config", config);
       axios
         .post("http://localhost:5000/api/user/auto-login", config)
         .then(() => {

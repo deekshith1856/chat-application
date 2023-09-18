@@ -1,4 +1,5 @@
 import {
+  Box,
   Button,
   FormControl,
   Input,
@@ -9,13 +10,15 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  Stack,
   useDisclosure,
   useToast,
 } from "@chakra-ui/react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ChatState } from "../../context/ChatProvider";
 import axios from "axios";
 import UserListItem from "../UserListItem";
+import UserBadgeItem from "../UserBadgeItem";
 
 const GroupChatModal = ({ children }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -42,12 +45,76 @@ const GroupChatModal = ({ children }) => {
         "http://localhost:5000/api/user/",
         config
       );
-      setSearchResult(data);
+      let result = [];
+      data.map((obj) => {
+        const name = obj.name;
+        const email = obj.email;
+        if (name && name.includes(search)) {
+          result.push(obj);
+        } else if (email && email.includes(search)) {
+          result.push(obj);
+        }
+      });
+      setSearchResult([...result]);
       setLoading(false);
     } catch (error) {}
   };
-  const handleSubmit = () => {
-    onClose();
+
+  const handleSubmit = async () => {
+    if (!groupChatName || !selectedUsers) {
+      toast({
+        title: "error occured",
+        description: "fill all the fields",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+        position: "top",
+      });
+    }
+    if (selectedUsers.length < 3) {
+      toast({
+        title: "error occured",
+        description: "Add minimum 3 users to create a group ",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+        position: "top",
+      });
+    }
+    try {
+      const config = {
+        headers: {
+          authorization: `Bearer ${user.token}`,
+        },
+      };
+      const { data } = await axios.post(
+        "http://localhost:5000/api/chats/group",
+        {
+          name: groupChatName,
+          users: JSON.stringify(selectedUsers.map((user) => user._id)),
+        },
+        config
+      );
+      setChats([data, ...chats]);
+      onClose();
+      toast({
+        title: `Create group ${groupChatName}`,
+
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+        position: "top",
+      });
+    } catch (error) {
+      toast({
+        title: "error occured",
+        description: error.message,
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+        position: "top",
+      });
+    }
   };
   const handleGroup = (user) => {
     if (selectedUsers.includes(user))
@@ -58,12 +125,18 @@ const GroupChatModal = ({ children }) => {
         isClosable: true,
         position: "top",
       });
+    else {
+      setSelectedUsers([...selectedUsers, user]);
+    }
   };
-  const handleDelete = () => {};
+  const handleDelete = (user) => {
+    const data = selectedUsers.filter((u) => u._id !== user._id);
+    setSelectedUsers(data);
+  };
   return (
     <>
       <span onClick={onOpen}>{children}</span>
-      <Modal isOpen={isOpen} onClose={onClose}>
+      <Modal isOpen={isOpen} onClose={onClose} isCentered>
         <ModalOverlay />
         <ModalContent>
           <ModalHeader justifyContent={"center"}>Create group chat</ModalHeader>
@@ -83,18 +156,20 @@ const GroupChatModal = ({ children }) => {
                 onChange={(e) => handleSearch(e.target.value)}
               />
             </FormControl>
-            {selectedUsers.map((user) => {
-              <UserBadgeItem
-                key={user._id}
-                user={user}
-                handleFunction={() => handleDelete}
-              />;
-            })}
+            <Stack direction={["column", "row"]} spacing="14px">
+              {selectedUsers.map((user) => (
+                <UserBadgeItem
+                  key={user._id}
+                  user={user}
+                  handleFunction={() => handleDelete(user)}
+                />
+              ))}
+            </Stack>
             {loading ? (
               <div>loading</div>
             ) : (
               searchResult
-                ?.slice(0, 4)
+                ?.slice(0, 5)
                 .map((user) => (
                   <UserListItem
                     key={user._id}
@@ -107,7 +182,7 @@ const GroupChatModal = ({ children }) => {
 
           <ModalFooter>
             <Button colorScheme="blue" onClick={handleSubmit}>
-              Close
+              Create Chat
             </Button>
           </ModalFooter>
         </ModalContent>

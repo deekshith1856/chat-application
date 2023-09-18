@@ -76,7 +76,6 @@ const SideDrawer = () => {
         config
       );
       let result = [];
-      console.log("search", search);
       data.map((obj) => {
         const name = obj.name;
         const email = obj.email;

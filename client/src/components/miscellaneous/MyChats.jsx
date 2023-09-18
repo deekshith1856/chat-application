@@ -6,11 +6,12 @@ import ChatLoading from "./ChatLoading";
 import { getSender } from "../../config/ChatLogics";
 import axios from "axios";
 import GroupChatModal from "./GroupChatModal";
-const MyChats = () => {
+const MyChats = ({ fetchAgain, setFetchAgain }) => {
   const [loggedUser, setLoggedUser] = useState();
+
   const { user, selectedChat, setSelectedChat, chats, setChats } = ChatState();
   const toast = useToast();
-
+  console.log(selectedChat);
   const fetchChats = async () => {
     try {
       const config = {
@@ -38,7 +39,7 @@ const MyChats = () => {
   useEffect(() => {
     setLoggedUser(JSON.parse(localStorage.getItem("user")));
     fetchChats();
-  }, []);
+  }, [fetchAgain]);
 
   return (
     <Box
@@ -47,7 +48,7 @@ const MyChats = () => {
       alignItems={"center"}
       p={3}
       bg={"white"}
-      w={{ base: "100%", md: "30%" }}
+      width={{ base: "100%", md: "30%" }}
       borderRadius={"lg"}
       borderWidth={"1px"}
     >
@@ -79,7 +80,7 @@ const MyChats = () => {
         p={3}
         bg={"#F8F8F8"}
         w={"100%"}
-        h={"100%"}
+        h={"90%"}
         borderRadius={"lg"}
         overflowY={"hidden"}
       >
