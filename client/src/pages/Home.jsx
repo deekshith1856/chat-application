@@ -20,23 +20,34 @@ export const Home = () => {
   useEffect(() => {
     const userInfo = JSON.parse(localStorage.getItem("user"));
 
-    if (userInfo) {
-      const config = {
-        headers: {
-          Authorization: `Bearer ${userInfo.token}`,
-        },
-      };
-      axios
-        .post("http://localhost:5000/api/user/auto-login", config)
-        .then(() => {
-          console.log("login successfull");
-          navigate("/chat");
-        })
-        .catch((error) => {
-          console.log("hello");
-          console.log(`error ${error}`);
-        });
-    }
+const autoLogin = async () => {
+  try {
+    const config = {
+      headers: {
+        authorization: `Bearer ${userInfo.token}`,
+      },
+    };
+    console.log("config", config);
+    const { data } = await axios.post(
+      "http://localhost:5000/api/user/auto-login",
+      config
+    );
+    console.log(data);
+  } catch (error) {
+    console.log(error);
+  }
+};
+if (userInfo) {
+  autoLogin();
+
+  // .then(() => {
+  //   console.log("login successfull");
+  //   navigate("/chat");
+  // })
+  // .catch((error) => {
+  //   console.log(`error ${error.message}`);
+  // });
+}
   }, []);
 
   return (

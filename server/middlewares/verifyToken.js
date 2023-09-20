@@ -1,13 +1,16 @@
-import jwt, { decode } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import User from "../models/userModel.js";
 
 function validateToken(req, res, next) {
     // const header = req.body.headers['Authorization'];
+
     const header = req.headers.authorization;
-    const token = header.split(" ")[1];
-    if (!token) {
+
+    if (!header) {
         res.status(400).json({ message: "token not present" })
     }
+
+    const token = header.split(" ")[1];
     jwt.verify(token, process.env.JWT_KEY, async (err, decoded) => {
         if (err) {
             return res.status(400).json({ message: "Invalid token" })

@@ -2,8 +2,9 @@ import React from "react";
 import { ChatState } from "../../context/ChatProvider";
 import { Box, IconButton, Text } from "@chakra-ui/react";
 import { ArrowBackIcon } from "@chakra-ui/icons";
-import { getSender } from "../../config/ChatLogics";
+import { getSender, getSenderFull } from "../../config/ChatLogics";
 import ProfileModel from "./ProfileModel";
+import UpdateGroupChatModal from "./UpdateGroupChatModal";
 
 const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const { user, selectedChat, setSelectedChat } = ChatState();
@@ -18,7 +19,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         >
           <Text fontSize={"3xl"} p={3}>
             Click on a user to start chatting
-          </Text>{" "}
+          </Text>
         </Box>
       ) : (
         <>
@@ -42,12 +43,29 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
             {!selectedChat.isGroupChat ? (
               <>
                 {getSender(user, selectedChat.users)}
-                {/* <ProfileModel user={}/> */}
+                <ProfileModel user={getSenderFull(user, selectedChat.users)} />
               </>
             ) : (
-              <></>
+              <>
+                {selectedChat.chatName}
+                <UpdateGroupChatModal
+                  fetchAgain={fetchAgain}
+                  setFetchAgain={setFetchAgain}
+                />{" "}
+              </>
             )}
           </Text>
+          <Box
+            d="flex"
+            flexDir={"coloumn"}
+            justifyContent={"flex-end"}
+            p={3}
+            bg={"#E8E8E8"}
+            w={"100%"}
+            h={"100%"}
+            borderRadius={"lg"}
+            overflowY={"hidden"}
+          ></Box>
         </>
       )}
     </>

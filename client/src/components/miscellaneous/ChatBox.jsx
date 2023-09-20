@@ -1,13 +1,24 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { ChatState } from "../../context/ChatProvider";
 import { Box } from "@chakra-ui/react";
 import SingleChat from "./SingleChat";
 const ChatBox = ({ fetchAgain, setFetchAgain }) => {
   const { selectedChat } = ChatState();
-
+  const [displayType, setDisplayType] = useState("none");
+  useEffect(() => {
+    if (selectedChat) {
+      setDisplayType("flex");
+    } else {
+      setDisplayType("none");
+    }
+  }, [selectedChat]);
   return (
     <Box
-      d={{ base: !selectedChat ? "none" : "flex", md: "flex" }}
+      display={{
+        base: displayType,
+        md: "flex",
+        lg: "flex",
+      }}
       alignItems="center"
       flexDir="column"
       p={3}

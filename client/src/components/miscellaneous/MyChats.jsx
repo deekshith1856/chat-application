@@ -7,11 +7,11 @@ import { getSender } from "../../config/ChatLogics";
 import axios from "axios";
 import GroupChatModal from "./GroupChatModal";
 const MyChats = ({ fetchAgain, setFetchAgain }) => {
-  const [loggedUser, setLoggedUser] = useState();
-
+  const [loggedUser, setLoggedUser] = useState({});
+  const [displayType, setDisplayType] = useState("flex");
   const { user, selectedChat, setSelectedChat, chats, setChats } = ChatState();
   const toast = useToast();
-  console.log(selectedChat);
+
   const fetchChats = async () => {
     try {
       const config = {
@@ -40,10 +40,16 @@ const MyChats = ({ fetchAgain, setFetchAgain }) => {
     setLoggedUser(JSON.parse(localStorage.getItem("user")));
     fetchChats();
   }, [fetchAgain]);
-
+  useEffect(() => {
+    if (!selectedChat) {
+      setDisplayType("none");
+    } else {
+      setDisplayType("flex");
+    }
+  }, [selectedChat]);
   return (
     <Box
-      d={{ base: selectedChat ? "none" : "flex", md: "flex" }}
+      d={{ base: displayType, md: "flex" }}
       flexDir={"column"}
       alignItems={"center"}
       p={3}
